@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevSecOps Enterprise Academy - Single File Edition</title>
+  <meta name="description" content="A self-contained interactive training platform and automated deployment pipeline simulator for engineering students to master enterprise technology layers and modern DevSecOps.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; }
+    code, pre, .font-mono { font-family: 'JetBrains Mono', monospace; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+    ::-webkit-scrollbar-thumb { background: rgba(71, 85, 105, 0.5); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.8); }
+    @media print {
+      body * { visibility: hidden; }
+      #certificate-printable, #certificate-printable * { visibility: visible; }
+      #certificate-printable { position: absolute; left: 0; top: 0; width: 100%; border: none !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 antialiased selection:bg-cyan-500/20 selection:text-cyan-200 min-h-screen flex flex-col">
+
+  <!-- TOP NAVBAR -->
+  <header class="sticky top-0 z-50 flex items-center justify-between gap-4 px-6 py-3.5 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80">
+    <!-- Brand -->
+    <div onclick="switchTab('layers')" class="flex items-center gap-2.5 cursor-pointer select-none whitespace-nowrap shrink-0 group">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform">
+        <i data-lucide="shield-check" class="w-5 h-5"></i>
+      </div>
+      <span class="text-base font-bold tracking-tight text-white group-hover:text-cyan-300 transition-colors">
+        DevSecOps <span class="text-cyan-400 font-semibold text-sm">Enterprise Academy</span>
+      </span>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="hidden lg:flex items-center gap-5 text-sm font-medium text-slate-300">
+      <button onclick="switchTab('layers')" id="nav-layers" class="flex items-center gap-1.5 py-1 text-cyan-400 border-b-2 border-cyan-400 font-semibold whitespace-nowrap">
+        <i data-lucide="layers" class="w-4 h-4"></i>
+        <span>Enterprise Layers</span>
+      </button>
+      <button onclick="switchTab('environments')" id="nav-environments" class="flex items-center gap-1.5 py-1 text-slate-400 hover:text-white whitespace-nowrap">
+        <i data-lucide="server" class="w-4 h-4"></i>
+        <span>Orgs & Multi-Cloud</span>
+      </button>
+      <button onclick="switchTab('pipeline')" id="nav-pipeline" class="flex items-center gap-1.5 py-1 text-slate-400 hover:text-white whitespace-nowrap">
+        <i data-lucide="play-circle" class="w-4 h-4"></i>
+        <span>Pipeline Simulator</span>
+      </button>
+      <button onclick="switchTab('handbook')" id="nav-handbook" class="flex items-center gap-1.5 py-1 text-slate-400 hover:text-white whitespace-nowrap">
+        <i data-lucide="book-open" class="w-4 h-4"></i>
+        <span>Training Handbook</span>
+      </button>
+      <button onclick="switchTab('challenges')" id="nav-challenges" class="flex items-center gap-1.5 py-1 text-slate-400 hover:text-white whitespace-nowrap">
+        <i data-lucide="shield-alert" class="w-4 h-4"></i>
+        <span>Incident Arena</span>
+      </button>
+      <button onclick="switchTab('mentor')" id="nav-mentor" class="flex items-center gap-1.5 py-1 text-slate-400 hover:text-white whitespace-nowrap">
+        <i data-lucide="help-circle" class="w-4 h-4"></i>
+        <span>Tech Lead Q&A</span>
+      </button>
+    </nav>
+
+    <!-- Zone 3: Actions -->
+    <div class="flex items-center gap-2.5 shrink-0">
+      <button onclick="openCertificate()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-cyan-300 transition-colors">
+        <i data-lucide="award" class="w-4 h-4 text-cyan-400"></i>
+        <span class="hidden sm:inline">Progress</span>
+        <span id="badge-progress-count" class="text-slate-400 font-mono text-xs">1/9</span>
+      </button>
+      <button onclick="downloadSelf()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md transition-colors" title="Download this standalone HTML file to host on GitHub Pages">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+        <span class="hidden md:inline">Download HTML</span>
+      </button>
+      <button onclick="switchTab('pipeline')" class="px-3.5 py-1.5 text-xs font-bold text-slate-950 bg-cyan-400 hover:bg-cyan-300 rounded-lg shadow-md transition-all">
+        Launch Pipeline
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN WRAPPER -->
+  <main class="flex-1 pb-16">
+
+    <!-- HERO SECTION (Visible on Layers & Overview) -->
+    <section id="hero-section" class="relative overflow-hidden border-b border-slate-800/80 bg-gradient-to-b from-slate-900/60 via-slate-950 to-slate-950 py-12 md:py-16 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex items-center gap-2 text-xs font-semibold text-cyan-400 tracking-wider uppercase mb-3">
+          <span>B.Tech 1st Year Engineering Guide</span>
+          <span aria-hidden="true">·</span>
+          <span>Enterprise Architecture</span>
+          <span aria-hidden="true">·</span>
+          <span>GitHub Pages Single-File Edition</span>
+        </div>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight max-w-4xl leading-[1.15]">
+          How Very Large Tech Organizations Work, Live & Deploy in Real Life.
+        </h1>
+        <p class="mt-4 text-base sm:text-lg text-slate-300 max-w-3xl leading-relaxed">
+          From VS Code on your laptop to multiple GitHub Organizations, Sandbox/Dev/QA/Prod environments, Multi-Cloud (AWS, GCP, AliCloud), and agentless cloud defense with Wiz.
+        </p>
+
+        <!-- 4 Fast Action Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+          <div onclick="switchTab('layers')" class="group p-5 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-900 transition-all cursor-pointer">
+            <div class="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-3">
+              <i data-lucide="layers" class="w-5 h-5"></i>
+            </div>
+            <h3 class="text-sm font-bold text-white group-hover:text-cyan-300">The 4 Enterprise Layers</h3>
+            <p class="mt-1 text-xs text-slate-400">UI, Microservices, SAP/DBs, and Cloud Infrastructure with real analogies.</p>
+          </div>
+          <div onclick="switchTab('environments')" class="group p-5 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-900 transition-all cursor-pointer">
+            <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-3">
+              <i data-lucide="server" class="w-5 h-5"></i>
+            </div>
+            <h3 class="text-sm font-bold text-white group-hover:text-emerald-300">Orgs, Multi-Cloud & Wiz</h3>
+            <p class="mt-1 text-xs text-slate-400">VS Code, GitHub Orgs, Sandbox/Dev/QA/Prod, AWS, GCP, AliCloud & Wiz.</p>
+          </div>
+          <div onclick="switchTab('pipeline')" class="group p-5 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-blue-500/50 hover:bg-slate-900 transition-all cursor-pointer">
+            <div class="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-3">
+              <i data-lucide="play-circle" class="w-5 h-5"></i>
+            </div>
+            <h3 class="text-sm font-bold text-white group-hover:text-blue-300">Automated Pipeline</h3>
+            <p class="mt-1 text-xs text-slate-400">Trigger live CI/CD scans, inject vulnerabilities, trip gates, and patch code.</p>
+          </div>
+          <div onclick="switchTab('handbook')" class="group p-5 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-indigo-500/50 hover:bg-slate-900 transition-all cursor-pointer">
+            <div class="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-3">
+              <i data-lucide="book-open" class="w-5 h-5"></i>
+            </div>
+            <h3 class="text-sm font-bold text-white group-hover:text-indigo-300">9-Chapter Handbook</h3>
+            <p class="mt-1 text-xs text-slate-400">Complete fresher guide: SAST/DAST, Spotify squads, canary rollouts, and free tools.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 1: 4 ENTERPRISE LAYERS -->
+    <section id="view-layers" class="max-w-6xl mx-auto px-6 py-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+        <div>
+          <h2 class="text-2xl font-bold text-white tracking-tight">The 4 Enterprise Technology Layers</h2>
+          <p class="text-sm text-slate-400 mt-1">How a global company isolates responsibilities so thousands of engineers ship safely.</p>
+        </div>
+        <div class="flex items-center gap-1 p-1 bg-slate-900 border border-slate-800 rounded-lg">
+          <button onclick="toggleLayerMode('tech')" id="btn-layer-tech" class="px-3 py-1.5 text-xs font-semibold rounded-md bg-cyan-500 text-slate-950">Technical Architecture</button>
+          <button onclick="toggleLayerMode('analogy')" id="btn-layer-analogy" class="px-3 py-1.5 text-xs font-semibold rounded-md text-slate-400 hover:text-white">Real-World Analogy</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
+        <!-- Layer list (5 cols) -->
+        <div class="lg:col-span-5 flex flex-col gap-3" id="layers-stack-list">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Layer Details Inspector (7 cols) -->
+        <div class="lg:col-span-7">
+          <div id="layer-inspector-card" class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-xl">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Order Trace Box -->
+      <div class="mt-8 p-5 rounded-xl bg-slate-900/60 border border-slate-800">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+          <div class="flex items-center gap-2">
+            <i data-lucide="globe" class="w-4 h-4 text-cyan-400"></i>
+            <span class="text-xs font-bold text-white uppercase tracking-wider">Life of a $99 Order (Real-Time Packet Flow Across Layers)</span>
+          </div>
+          <button onclick="playOrderFlow()" id="btn-trace-order" class="px-3 py-1.5 text-xs font-bold bg-cyan-400 hover:bg-cyan-300 text-slate-950 rounded-lg transition-colors flex items-center gap-1">
+            <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+            <span>Trace Order Flow</span>
+          </button>
+        </div>
+        <p class="text-xs text-slate-400 mb-4">Watch what happens when a customer taps "Buy $99 Headphones" on their smartphone as the request travels across all 4 layers.</p>
+        <div class="grid grid-cols-6 gap-1 mb-4" id="order-flow-stepper">
+          <!-- 6 stepper bars -->
+        </div>
+        <div id="order-flow-detail" class="p-4 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-300">
+          Click "Trace Order Flow" to see how Layer 1 (React App) securely interacts with Layer 4 (WAF), Layer 2 (Microservices), Layer 3 (Postgres & SAP), and Kubernetes autoscaling.
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: ORGS & MULTI-CLOUD -->
+    <section id="view-environments" class="max-w-6xl mx-auto px-6 py-8 hidden">
+      <div class="pb-6 border-b border-slate-800">
+        <div class="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-1">Enterprise Topology & Real-World Operations</div>
+        <h2 class="text-2xl font-bold text-white tracking-tight">How Enterprise Tools & Environments Fit Together</h2>
+        <p class="text-sm text-slate-400 mt-1">Explore where VS Code, multiple GitHub Orgs, Sandbox/Dev/QA/Prod environments, Multi-Cloud (AWS, GCP, AliCloud), and Wiz fit into the real engineering world.</p>
+
+        <!-- Subtabs -->
+        <div class="flex flex-wrap items-center gap-2 mt-6">
+          <button onclick="setEnvSubView('environments')" id="sub-env-environments" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-cyan-500 text-slate-950 shadow-md">1. Environments (Sandbox → Prod)</button>
+          <button onclick="setEnvSubView('github')" id="sub-env-github" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white">2. Multiple GitHub Orgs</button>
+          <button onclick="setEnvSubView('ide')" id="sub-env-ide" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white">3. Developer IDEs</button>
+          <button onclick="setEnvSubView('multicloud')" id="sub-env-multicloud" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white">4. Multi-Cloud (AWS/GCP/AliCloud)</button>
+          <button onclick="setEnvSubView('wiz')" id="sub-env-wiz" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white">5. Cloud Security (Wiz & Scanners)</button>
+        </div>
+      </div>
+
+      <div id="env-subview-content" class="mt-8">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- TAB 3: PIPELINE SIMULATOR -->
+    <section id="view-pipeline" class="max-w-6xl mx-auto px-6 py-8 hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+        <div>
+          <div class="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-1">Continuous Integration & Automated Delivery</div>
+          <h2 class="text-2xl font-bold text-white tracking-tight">Automated DevSecOps Pipeline Simulator</h2>
+          <p className="text-sm text-slate-400 mt-1">Experience how automated scanners halt dangerous code from reaching millions of users.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="resetPipeline()" class="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-300">Reset</button>
+          <button onclick="startPipelineRun()" id="btn-run-pipeline" class="px-4 py-2 text-xs font-bold rounded-lg bg-cyan-400 hover:bg-cyan-300 text-slate-950 shadow-lg shadow-cyan-500/20">Trigger Pipeline Run</button>
+        </div>
+      </div>
+
+      <!-- Scenario Selector -->
+      <div class="mt-6">
+        <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Select Code Scenario (Inject a Vulnerability)</label>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2" id="pipeline-scenarios-selector">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- 7 Pipeline Stages -->
+      <div class="mt-8">
+        <div class="flex items-center justify-between text-xs text-slate-400 mb-3">
+          <span class="font-semibold uppercase tracking-wider">Automated Security Gates (Stages 1 – 7)</span>
+          <span id="pipeline-status-indicator" class="font-mono text-cyan-400">Status: Ready</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3" id="pipeline-stages-container">
+          <!-- 7 Stage Cards -->
+        </div>
+      </div>
+
+      <!-- Tripped Gate Alert Banner -->
+      <div id="pipeline-tripped-banner" class="mt-8 p-6 rounded-2xl bg-rose-950/30 border-2 border-rose-500 shadow-2xl hidden">
+        <!-- Rendered when tripped -->
+      </div>
+
+      <!-- Success Banner -->
+      <div id="pipeline-success-banner" class="mt-8 p-6 rounded-2xl bg-emerald-950/30 border border-emerald-500 shadow-xl hidden flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <!-- Rendered when passed -->
+      </div>
+
+      <!-- Live Terminal Console -->
+      <div class="mt-8 rounded-xl bg-slate-950 border border-slate-800 overflow-hidden shadow-2xl">
+        <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900/90 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <i data-lucide="terminal" class="w-4 h-4 text-cyan-400"></i>
+            <span class="text-xs font-mono font-semibold text-slate-200">ci-cd-runner-output.log</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
+          </div>
+        </div>
+        <div id="terminal-logs-body" class="p-4 font-mono text-xs max-h-64 overflow-y-auto space-y-1 text-slate-300">
+          <!-- Real time logs -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: TRAINING HANDBOOK -->
+    <section id="view-handbook" class="max-w-6xl mx-auto px-6 py-8 hidden">
+      <div class="pb-6 border-b border-slate-800">
+        <div class="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-1">The 1st-Year Engineering Curriculum · 9 Chapters</div>
+        <h2 class="text-2xl font-bold text-white tracking-tight">DevSecOps & Enterprise Architecture Master Handbook</h2>
+        <p class="text-sm text-slate-400 mt-1">Written specifically for B.Tech students with real-world analogies, clean breakdowns, and zero gatekeeping.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
+        <!-- TOC (4 cols) -->
+        <div class="lg:col-span-4 flex flex-col gap-3">
+          <div class="relative">
+            <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+            <input type="text" id="handbook-search-input" oninput="filterHandbook(this.value)" placeholder="Search concepts (e.g. SAST, Wiz, K8s)..." class="w-full pl-9 pr-3 py-2 text-xs bg-slate-900 border border-slate-800 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+          </div>
+          <div id="handbook-chapters-list" class="space-y-2">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Reader Area (8 cols) -->
+        <div class="lg:col-span-8">
+          <article id="handbook-reader-content" class="p-6 sm:p-8 rounded-2xl bg-slate-900/70 border border-slate-800 shadow-xl">
+            <!-- Populated by JS -->
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: INCIDENT ARENA -->
+    <section id="view-challenges" class="max-w-4xl mx-auto px-6 py-8 hidden">
+      <div class="pb-6 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div class="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-1">Enterprise War Room Simulator</div>
+          <h2 class="text-2xl font-bold text-white tracking-tight">DevSecOps Incident & Decision Arena</h2>
+          <p class="text-sm text-slate-400 mt-1">Step into the shoes of a junior DevSecOps engineer facing real-world architectural dilemmas.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono">
+            Score: <strong id="quiz-score-display" class="text-cyan-400">0/4</strong>
+          </div>
+          <button onclick="resetQuiz()" class="px-2.5 py-1.5 text-xs text-slate-400 hover:text-white bg-slate-900 border border-slate-800 rounded-lg">Restart</button>
+        </div>
+      </div>
+
+      <div id="quiz-container" class="mt-8">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- TAB 6: TECH LEAD MENTOR -->
+    <section id="view-mentor" class="max-w-5xl mx-auto px-6 py-8 hidden">
+      <div class="pb-6 border-b border-slate-800">
+        <div class="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-1">Senior DevSecOps Tech Lead · Plain English & Analogies</div>
+        <h2 class="text-2xl font-bold text-white tracking-tight">Ask the Tech Lead: B.Tech Fresher Q&A</h2>
+        <p class="text-sm text-slate-400 mt-1">No question is too basic! Ask about microservices, cloud servers, security tools, or how big organizations operate.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
+        <div class="lg:col-span-5 flex flex-col gap-3">
+          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Frequently Asked Questions</label>
+          <div id="mentor-presets-list" class="space-y-2">
+            <!-- Populated by JS -->
+          </div>
+          <form onsubmit="handleCustomMentorQuestion(event)" class="mt-4 p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+            <label class="text-xs font-bold text-slate-200 block mb-2 flex items-center gap-1.5">
+              <i data-lucide="message-square" class="w-3.5 h-3.5 text-cyan-400"></i>
+              <span>Ask Your Own Question</span>
+            </label>
+            <div class="flex gap-2">
+              <input type="text" id="custom-question-input" placeholder="e.g. Why do we need Docker?" class="flex-1 px-3 py-2 text-xs bg-slate-950 border border-slate-800 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+              <button type="submit" class="px-3 py-2 bg-cyan-400 hover:bg-cyan-300 text-slate-950 rounded-lg text-xs font-bold transition-colors">Ask</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="lg:col-span-7">
+          <div id="mentor-answer-card" class="p-6 sm:p-8 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-xl">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- CERTIFICATE MODAL -->
+  <div id="certificate-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm hidden">
+    <div class="relative w-full max-w-2xl rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden p-6 sm:p-8">
+      <button onclick="closeCertificate()" class="absolute top-4 right-4 p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+      <div class="text-center pb-6 border-b border-slate-800">
+        <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center mx-auto mb-3">
+          <i data-lucide="award" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white">Learning Progress & Certificate</h3>
+        <p class="text-xs text-slate-400 mt-1">Track your mastery of enterprise architecture layers and automated DevSecOps workflows.</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 my-6">
+        <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-center">
+          <div id="cert-chapters-read" class="text-2xl font-extrabold text-cyan-400 font-mono">1/9</div>
+          <div class="text-xs text-slate-400 mt-1">Handbook Chapters Read</div>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-center">
+          <div id="cert-pipeline-status" class="text-2xl font-extrabold text-emerald-400 font-mono">PASSED</div>
+          <div class="text-xs text-slate-400 mt-1">Pipeline Simulation</div>
+        </div>
+      </div>
+
+      <!-- Printable Card -->
+      <div id="certificate-printable" class="p-6 rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 border-2 border-cyan-500/40 relative shadow-inner">
+        <div class="flex items-center justify-between text-[11px] font-mono text-cyan-400 mb-4">
+          <span class="flex items-center gap-1.5 font-bold"><i data-lucide="shield-check" class="w-4 h-4"></i> DEVSECOPS ENTERPRISE ACADEMY</span>
+          <span>ID: DSO-948214</span>
+        </div>
+        <div class="text-center py-4">
+          <div class="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-2">Certificate of Foundational Competency</div>
+          <input type="text" id="cert-student-name" value="Piyush Jain" class="text-center text-xl sm:text-2xl font-extrabold text-white bg-transparent border-b border-dashed border-cyan-500/60 pb-1 focus:outline-none focus:border-cyan-400 max-w-sm">
+          <p class="text-xs text-slate-300 max-w-md mx-auto leading-relaxed mt-3">
+            Has successfully mastered the 4 Enterprise Technology Layers, GitHub Multi-Org architecture, Environment Isolation (Sandbox/Dev/QA/Prod), Multi-Cloud (AWS, GCP, AliCloud), Agentless Wiz scanning, and Zero-Downtime Canary Deployments.
+          </p>
+        </div>
+        <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+          <span>Verified: 1st-Year Engineering Curriculum</span>
+          <span class="text-cyan-400 font-mono font-medium">B.Tech Software Foundations</span>
+        </div>
+      </div>
+
+      <div class="mt-6 flex items-center justify-end gap-3">
+        <button onclick="window.print()" class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200">Print / Save PDF</button>
+        <button onclick="closeCertificate()" class="px-4 py-2 text-xs font-bold rounded-lg bg-cyan-400 hover:bg-cyan-300 text-slate-950">Continue Learning</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-900 bg-slate-950/90 py-8 px-6 text-xs text-slate-500 mt-auto">
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <i data-lucide="shield-check" class="w-4 h-4 text-cyan-400"></i>
+        <span class="font-semibold text-slate-300">DevSecOps Enterprise Academy</span>
+        <span aria-hidden="true">·</span>
+        <span>Single-File GitHub Pages Edition</span>
+      </div>
+      <div class="flex items-center gap-4 text-slate-400">
+        <button onclick="downloadSelf()" class="hover:text-cyan-300 underline font-medium">Download Single-File HTML</button>
+        <span aria-hidden="true">·</span>
+        <span>Shift-Left Security</span>
+        <span aria-hidden="true">·</span>
+        <span>Zero-Trust Architecture</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT FOR ALL FUNCTIONALITY -->
+  <script>
+    // --- DATA STORES ---
+    const ENTERPRISE_LAYERS = [
+      {
+        id: 1,
+        name: 'Websites & User Interfaces',
+        subtitle: 'The Customer & Employee Front Door',
+        badge: 'Presentation Layer',
+        analogyTitle: 'The Restaurant Menu & Digital Ordering Screen',
+        analogyDescription: 'Imagine walking into a massive airport food court. You look at the glossy touch-screen kiosk, browse pizza toppings, and press "Order". The screen looks pretty, shows photos, and has buttons. But the screen does NOT bake the pizza, does NOT keep the money in a safe, and does NOT own the flour inventory. It is simply a friendly messenger translating your finger taps into structured requests.',
+        techDescription: 'The client-facing applications running directly in the browser or on smartphones (React, Next.js, iOS/Android apps). Highly dynamic, but completely untrusted since users can inspect and alter code in DevTools.',
+        whyItMatters: 'It creates the first impression and handles human interaction, but must never be trusted with direct database credentials.',
+        whyNotDirectAccess: 'If your React app connected directly to PostgreSQL or SAP, your database password would be baked into the JavaScript bundle. Any student could press F12, change itemPrice = 0.00, or run DROP TABLE users;.',
+        tools: [
+          { category: 'Client Frameworks', items: ['React', 'Next.js', 'React Native', 'Flutter'], desc: 'Component-driven user interface builders.' },
+          { category: 'Delivery & CDN', items: ['Cloudflare', 'AWS CloudFront', 'Akamai'], desc: 'Distributes static HTML/JS worldwide in milliseconds.' },
+          { category: 'Edge Security', items: ['Content Security Policy (CSP)', 'WAF Bot Protection'], desc: 'Blocks automated scrapers and XSS attacks.' }
+        ]
+      },
+      {
+        id: 2,
+        name: 'Backend Applications & Microservices',
+        subtitle: 'The Brain, Logic & Workflow Engine',
+        badge: 'Application & Business Logic Layer',
+        analogyTitle: 'The Head Chefs, Waiters & Kitchen Coordinators',
+        analogyDescription: 'Back in the restaurant, behind swinging kitchen doors, sits a team of specialized chefs. One chef only slices vegetables (Catalog Service), another handles payment (Payment Service), and another packs delivery boxes (Shipping Service). When your kiosk sends an order, the kitchen coordinator (API Gateway) verifies your token and sends orders to each chef over an internal intercom (Kafka / gRPC).',
+        techDescription: 'Dozens or hundreds of independent microservices executing business rules, authenticating requests via JWT tokens, and talking via REST, gRPC, and Apache Kafka.',
+        whyItMatters: 'If Search crashes under Black Friday load, users can still checkout items already in their cart! Teams deploy independently 50 times a day.',
+        whyNotDirectAccess: 'Services strictly enforce authentication and Zero Trust. Even internal microservices must verify JWT tokens.',
+        tools: [
+          { category: 'Runtimes', items: ['Node.js', 'Go (Golang)', 'Java Spring Boot', 'Python FastAPI'], desc: 'High performance backend execution engines.' },
+          { category: 'Gateways', items: ['Kong API Gateway', 'Envoy Proxy', 'AWS API Gateway'], desc: 'Front-door routers enforcing JWT authentication & rate limits.' },
+          { category: 'Event Streaming', items: ['Apache Kafka', 'RabbitMQ', 'AWS SQS'], desc: 'Decoupled asynchronous message streams.' }
+        ]
+      },
+      {
+        id: 3,
+        name: 'Enterprise Business Systems & Databases',
+        subtitle: 'The Vault, Master Ledger & Source of Truth',
+        badge: 'Enterprise Core & State Layer',
+        analogyTitle: 'The Central Bank Vault, Ledger Book & HR Archive',
+        analogyDescription: 'At the end of the day, how does the restaurant chain know how much total tax it owes to the government? Where are employee bank salaries stored? Where is the supplier agreement for 10 tons of cheese? That is locked in the central corporate headquarters vault with triple-authenticated biometric locks and audit books where no line can ever be erased without a legal audit trail.',
+        techDescription: 'Where permanent financial records, customer history, supply chain orders, and enterprise resource planning (ERP) reside (SAP S/4HANA, Salesforce, PostgreSQL, Oracle).',
+        whyItMatters: 'If a database is corrupted or leaked, the company faces billions in fines (GDPR/HIPAA) or bankruptcy. Requires strict ACID guarantees.',
+        whyNotDirectAccess: 'Direct modifications are strictly forbidden. All mutations require regulated transactional APIs with cryptographic audit logging.',
+        tools: [
+          { category: 'Relational DBs', items: ['PostgreSQL', 'MySQL', 'Oracle Database', 'AWS Aurora'], desc: 'ACID-compliant relational transactional storage.' },
+          { category: 'Enterprise ERP', items: ['SAP S/4HANA', 'Salesforce CRM', 'Workday'], desc: 'Integrated suites managing corporate finances & supply chain.' },
+          { category: 'Data Warehousing', items: ['Snowflake', 'Google BigQuery', 'Databricks'], desc: 'Massive analytics engines for financial forecasting.' }
+        ]
+      },
+      {
+        id: 4,
+        name: 'Infrastructure & Cloud Platforms',
+        subtitle: 'The Foundation: Compute, Network & Security Shell',
+        badge: 'Foundation & Operating Substrate',
+        analogyTitle: 'The Mall Building, Electricity Grid & Security Guards',
+        analogyDescription: 'Where does the restaurant, kitchen, and vault physically sit? Inside a reinforced concrete building equipped with dual backup diesel generators, fiber-optic telecom cables, air conditioning cooling towers, fire sprinklers, and perimeter security guards checking ID cards at every gate.',
+        techDescription: 'Hyperscale cloud providers (AWS, GCP, AliCloud), Kubernetes container orchestration, Software-Defined Networking (VPC), and Infrastructure as Code (Terraform).',
+        whyItMatters: 'Modern infrastructure is written as code (IaC). You write 20 lines of Terraform, and 50 virtual servers spin up in 90 seconds. If those 20 lines contain an open port, hackers enter immediately.',
+        whyNotDirectAccess: 'Infrastructure is completely immutable ("Cattle, not pets"). If a server misbehaves, it is destroyed and replaced automatically from a signed container image.',
+        tools: [
+          { category: 'Cloud Providers', items: ['AWS', 'Google Cloud (GCP)', 'Alibaba Cloud'], desc: 'Global hyperscale data centers.' },
+          { category: 'Containers', items: ['Kubernetes (K8s)', 'Docker', 'AWS ECS'], desc: 'Standardized application containers and automated autoscalers.' },
+          { category: 'IaC & Config', items: ['Terraform', 'OpenTofu', 'Ansible'], desc: 'Declarative cloud resources managed in Git.' }
+        ]
+      }
+    ];
+
+    const ORDER_STEPS = [
+      { step: 1, layer: 'Layer 1: UI', name: 'React App', action: 'User taps "Buy Headphones $99" on phone.', gate: 'Input validation: Prevents negative quantity, escapes XSS.' },
+      { step: 2, layer: 'Layer 4: Cloud', name: 'AWS CloudFront WAF', action: 'Edge WAF inspects IP reputation, terminates TLS encryption.', gate: 'Blocks DDoS attack floods and malicious IP ranges.' },
+      { step: 3, layer: 'Layer 2: Backend', name: 'API Gateway & Auth', action: 'Validates Authorization: Bearer JWT cryptographic signature.', gate: 'Zero-Trust: Checks OAuth 2.0 token expiration & scopes.' },
+      { step: 4, layer: 'Layer 2: Backend', name: 'Order Microservice', action: 'Calls Stripe over mTLS, publishes OrderPlaced to Kafka.', gate: 'BOLA/IDOR check: Verifies user owns the payment card.' },
+      { step: 5, layer: 'Layer 3: DBs & ERP', name: 'Postgres & SAP', action: 'Executes ACID transaction count = count - 1, registers SAP ledger.', gate: 'Data encrypted with AES-256 KMS customer-managed key.' },
+      { step: 6, layer: 'Layer 4: Cloud', name: 'Kubernetes Pods', action: 'Horizontal Pod Autoscaler scales pods to handle traffic spike.', gate: 'Falco eBPF monitors kernel system calls for zero-days.' }
+    ];
+
+    const PIPELINE_STAGES = [
+      { id: 'stage-1', num: 1, name: 'Secret Scan', tool: 'GitLeaks / TruffleHog', analogy: 'Airport Metal Detector', desc: 'Blocks committed AWS keys & passwords before leaving laptop.' },
+      { id: 'stage-2', num: 2, name: 'SAST Scan', tool: 'SonarQube / Semgrep', analogy: 'Blueprint X-Ray', desc: 'Inspects raw code for SQL injection, XSS, and weak crypto.' },
+      { id: 'stage-3', num: 3, name: 'SCA Scan', tool: 'Snyk / Dependabot', analogy: 'Food Health Inspector', desc: 'Scans package-lock.json for known CVEs in 3rd-party npm libraries.' },
+      { id: 'stage-4', num: 4, name: 'Container & IaC', tool: 'Trivy / Checkov / Wiz', analogy: 'Vehicle Crash-Test', desc: 'Checks Dockerfile non-root user and Terraform open port 22.' },
+      { id: 'stage-5', num: 5, name: 'DAST Probe', tool: 'OWASP ZAP', analogy: 'Friendly Lock-Picker', desc: 'Attacks running staging server from outside looking for leaks.' },
+      { id: 'stage-6', num: 6, name: 'Canary Rollout', tool: 'ArgoCD / Flagger', analogy: 'Canary in Coal Mine', desc: 'Deploys to 5% traffic. Auto-reverts in 2s if HTTP 500 > 0.1%.' },
+      { id: 'stage-7', num: 7, name: 'Runtime Defense', tool: 'Falco / Datadog', analogy: '24/7 Security Patrol', desc: 'eBPF kernel probe terminates pods spawning unauthorized shells.' }
+    ];
+
+    const SCENARIOS = [
+      { id: 'clean', title: 'Golden Standard: Clean Build', failsAt: null, label: 'Production Ready' },
+      { id: 'secret', title: 'Hardcoded AWS Key in Git', failsAt: 'stage-1', label: 'Secret Leak' },
+      { id: 'sqli', title: 'SQL Injection via String Concatenation', failsAt: 'stage-2', label: 'SAST Flaw' },
+      { id: 'cve', title: 'Critical RCE CVE in Dependencies', failsAt: 'stage-3', label: 'SCA Supply Chain' },
+      { id: 'root', title: 'Root Docker Container & Open Port 22', failsAt: 'stage-4', label: 'IaC Risk' },
+      { id: 'wiz-toxic', title: 'Wiz: Public Port + S3 Admin Role', failsAt: 'stage-4', label: 'Wiz Toxic Combo' },
+      { id: 'canary-crash', title: 'Canary Memory Leak & 500 Spike', failsAt: 'stage-6', label: 'Canary Failure' }
+    ];
+
+    const HANDBOOK_CHAPTERS = [
+      { num: 1, id: 'ch-1', title: 'The 4 Enterprise Layers Deconstructed', sub: 'From web buttons to microservices, SAP business ledgers, and AWS cloud infrastructure.', time: '6 min read' },
+      { num: 2, id: 'ch-2', title: 'How a 50,000-Person Tech Giant Works', sub: 'Two-Pizza Squads, Pull Requests, Peer Reviews, and Sprint cycles.', time: '7 min read' },
+      { num: 3, id: 'ch-3', title: 'Why DevOps Became DevSecOps', sub: 'The "Brakes on a Formula 1 Car" Principle: Speed requires safety.', time: '6 min read' },
+      { num: 4, id: 'ch-4', title: 'The 4 Security Pillars: SAST, DAST, SCA & IaC', sub: 'The essential security vocabulary every 1st-year fresher must master.', time: '8 min read' },
+      { num: 5, id: 'ch-5', title: 'Zero-Downtime Deployments & Canary Gates', sub: 'How tech giants release software without ever showing "Under Maintenance" screens.', time: '6 min read' },
+      { num: 6, id: 'ch-6', title: 'The Midnight Incident & Blameless Culture', sub: 'War Rooms, PagerDuty, and why engineers do not get fired for mistakes.', time: '6 min read' },
+      { num: 7, id: 'ch-7', title: '1st-Year B.Tech Action Plan: Practice for $0', sub: 'Free hands-on stack: GitHub Actions, Semgrep, Trivy, and Docker on your laptop.', time: '5 min read' },
+      { num: 8, id: 'ch-8', title: 'The Multi-GitHub Org & Multi-Repo Architecture', sub: 'How 10,000 engineers collaborate without stepping on each other.', time: '7 min read' },
+      { num: 9, id: 'ch-9', title: 'Environment Segregation & Multi-Cloud: Sandbox, Dev, QA, Prod & Wiz', sub: 'Why having separate cloud accounts and agentless Wiz graphs prevents disaster.', time: '9 min read' }
+    ];
+
+    const QUIZ_QUESTIONS = [
+      {
+        id: 1,
+        diff: 'Beginner',
+        q: 'Why does an enterprise security engineer reject connecting a React frontend directly to a PostgreSQL database?',
+        options: [
+          { text: 'PostgreSQL only runs on Linux and cannot communicate over WiFi.', correct: false },
+          { text: 'Database credentials would be exposed in the frontend bundle, allowing anyone to modify or wipe the DB in browser DevTools.', correct: true, exp: 'Spot on! Anything running in the browser is completely public. A user could alter SQL queries to steal data or delete tables.' },
+          { text: 'React only works with MongoDB.', correct: false },
+          { text: 'Frontend apps only support CSS.', correct: false }
+        ]
+      },
+      {
+        id: 2,
+        diff: 'Intermediate',
+        q: 'On Friday afternoon, a security scanner flags a critical 9.8 CVSS vulnerability in an indirect dependency. A developer asks to bypass the check to go home. What is the correct DevSecOps protocol?',
+        options: [
+          { text: 'Approve the bypass immediately because it is late.', correct: false },
+          { text: 'Reject the bypass, apply the automated patch, verify the pipeline turns green, and then deploy.', correct: true, exp: 'Never bypass security gates for convenience. The pipeline is your safety net!' },
+          { text: 'Permanently delete the scanner from the pipeline.', correct: false },
+          { text: 'Turn off the production servers.', correct: false }
+        ]
+      },
+      {
+        id: 3,
+        diff: 'On-Call Incident',
+        q: 'During a midnight canary deployment to 5% of users, HTTP 500 errors spike to 4.5% on canary pods. How should the deployment controller respond?',
+        options: [
+          { text: 'Send traffic to 100% of users to see if it fixes itself.', correct: false },
+          { text: 'Instantly revert 100% of traffic back to the stable version in seconds and isolate the faulty canary pods.', correct: true, exp: 'Canary progressive delivery automatically rolls back before real customers feel an outage.' },
+          { text: 'Reboot the entire data center.', correct: false },
+          { text: 'Wait 5 hours until the morning standup meeting.', correct: false }
+        ]
+      },
+      {
+        id: 4,
+        diff: 'Cloud Security',
+        q: 'What makes Wiz "Agentless" scanning different from traditional antivirus installed on servers?',
+        options: [
+          { text: 'Wiz only works on offline laptops without internet.', correct: false },
+          { text: 'Wiz connects directly to cloud APIs and snapshots virtual disks out-of-band with 0% CPU overhead, building attack graphs across toxic combinations.', correct: true, exp: 'Agentless eliminates blind spots, has zero impact on server performance, and spots multi-hop toxic attack combinations.' },
+          { text: 'Wiz is just an Excel spreadsheet.', correct: false },
+          { text: 'Wiz charges per line of code.', correct: false }
+        ]
+      }
+    ];
+
+    const MENTOR_PRESETS = [
+      {
+        id: 1,
+        cat: 'Enterprise Architecture',
+        q: 'Why does SAP cost millions of dollars when PostgreSQL is free?',
+        a: 'Postgres is just a blank storage engine; SAP is an entire pre-written corporate business system with legal tax compliance for 120 countries.',
+        analogy: 'PostgreSQL is like high-quality blank paper. You can write anything in it, but you have to write the tax laws yourself. SAP is an entire certified multinational accounting and supply-chain firm.',
+        tech: 'SAP S/4HANA integrates factory warehouse robots, payroll, multi-currency customs clearance, and general ledgers with legally binding audit trails.'
+      },
+      {
+        id: 2,
+        cat: 'Microservices vs Monolith',
+        q: 'What is the real difference between a Monolith and Microservices for a 1st year student?',
+        a: 'A Monolith is one giant Swiss Army knife; Microservices are a toolbox of specialized individual tools.',
+        analogy: 'Imagine a college fest where ONE student is responsible for music, catering, stage lighting, and tickets. If that student catches a fever, the fest halts! In microservices, specialized students handle each task independently.',
+        tech: 'Microservices allow 50 squads to deploy independent services (Cart, Payment, Auth) 50 times a day without coordinating large release trains.'
+      },
+      {
+        id: 3,
+        cat: 'DevSecOps & Tools',
+        q: 'What is the difference between SAST and DAST in 10 seconds?',
+        a: 'SAST inspects inside the code blueprints; DAST attacks the front door of the running staging app from the street.',
+        analogy: 'SAST is like an X-ray of your body while you are asleep (parsing raw code AST). DAST is like a fitness coach testing your heart rate on a treadmill (poking the live running app).',
+        tech: 'SAST (SonarQube/Semgrep) runs before compile time. DAST (OWASP ZAP) runs against the running staging container.'
+      },
+      {
+        id: 4,
+        cat: 'Cloud & Infrastructure',
+        q: 'What is Kubernetes in the simplest real-world words?',
+        a: 'Kubernetes is an automated robotic shipping yard crane for software containers.',
+        analogy: 'Imagine a shipping port with 10,000 standardized containers. Kubernetes is the automated crane. If one container catches fire, the crane drops it into the ocean and spins up an exact copy in 5 seconds.',
+        tech: 'Kubernetes reconciles declared state against reality, automatically managing container scheduling, internal DNS, and horizontal autoscaling.'
+      }
+    ];
+
+    // --- STATE ---
+    let currentTab = 'layers';
+    let currentLayerId = 1;
+    let currentLayerMode = 'tech';
+    let currentEnvSub = 'environments';
+    let selectedScenario = SCENARIOS[0];
+    let isPipelineRunning = false;
+    let pipelineStatuses = {};
+    let isScenarioFixed = false;
+    let activeQuizIndex = 0;
+    let quizScore = 0;
+    let answeredQuizzes = {};
+    let selectedChapterId = 'ch-1';
+    let completedChapters = ['ch-1'];
+
+    // --- NAVIGATION ---
+    function switchTab(tab) {
+      currentTab = tab;
+      const views = ['layers', 'environments', 'pipeline', 'handbook', 'challenges', 'mentor'];
+      views.forEach(v => {
+        const el = document.getElementById('view-' + v);
+        const navEl = document.getElementById('nav-' + v);
+        if (el) el.classList.toggle('hidden', v !== tab);
+        if (navEl) {
+          if (v === tab) {
+            navEl.className = 'flex items-center gap-1.5 py-1 text-cyan-400 border-b-2 border-cyan-400 font-semibold whitespace-nowrap';
+          } else {
+            navEl.className = 'flex items-center gap-1.5 py-1 text-slate-400 hover:text-white whitespace-nowrap';
+          }
+        }
+      });
+      document.getElementById('hero-section').classList.toggle('hidden', tab !== 'layers');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      lucide.createIcons();
+    }
+
+    // --- LAYER RENDERING ---
+    function renderLayers() {
+      const listContainer = document.getElementById('layers-stack-list');
+      listContainer.innerHTML = ENTERPRISE_LAYERS.map(layer => {
+        const isSel = layer.id === currentLayerId;
+        return `
+          <div onclick="selectLayer(${layer.id})" class="p-4 rounded-xl border transition-all cursor-pointer relative ${
+            isSel ? 'bg-slate-900 border-cyan-500 shadow-md shadow-cyan-500/10' : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+          }">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-mono font-semibold text-cyan-400">LAYER 0${layer.id}</span>
+              <span class="text-[11px] text-slate-400">${layer.badge}</span>
+            </div>
+            <h3 class="text-sm font-bold text-white">${currentLayerMode === 'tech' ? layer.name : layer.analogyTitle}</h3>
+            <p class="text-xs text-slate-400 line-clamp-2 mt-1">${currentLayerMode === 'tech' ? layer.subtitle : layer.analogyDescription}</p>
+            ${isSel ? '<div class="absolute right-0 top-0 bottom-0 w-1 bg-cyan-400 rounded-r-xl"></div>' : ''}
+          </div>
+        `;
+      }).join('');
+
+      // Inspector
+      const layer = ENTERPRISE_LAYERS.find(l => l.id === currentLayerId) || ENTERPRISE_LAYERS[0];
+      const inspector = document.getElementById('layer-inspector-card');
+      inspector.innerHTML = `
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+          <div>
+            <div class="text-xs font-mono font-semibold text-cyan-400 uppercase">LAYER 0${layer.id} · ${layer.badge}</div>
+            <h3 class="text-xl font-extrabold text-white mt-0.5">${layer.name}</h3>
+          </div>
+          <span class="text-xs px-2.5 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300 font-mono">${layer.subtitle}</span>
+        </div>
+        <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-4 rounded-xl bg-cyan-950/20 border border-cyan-800/40">
+            <span class="text-xs font-bold text-cyan-400 block mb-1">Real-World Analogy: ${layer.analogyTitle}</span>
+            <p class="text-xs text-slate-200 leading-relaxed italic">"${layer.analogyDescription}"</p>
+          </div>
+          <div class="p-4 rounded-xl bg-blue-950/20 border border-blue-800/40">
+            <span class="text-xs font-bold text-blue-400 block mb-1">Why This Layer Exists</span>
+            <p class="text-xs text-slate-300 leading-relaxed">${layer.whyItMatters}</p>
+          </div>
+        </div>
+        <div class="mt-4 p-4 rounded-xl bg-amber-950/20 border border-amber-800/40 text-xs">
+          <strong class="text-amber-400 block mb-1">1st-Year Question: "Why can't Layer 1 connect directly to Layer 3?"</strong>
+          <p class="text-amber-200/90 leading-relaxed">${layer.whyNotDirectAccess}</p>
+        </div>
+        <div class="mt-6">
+          <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Industry Tools at Layer ${layer.id}</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            ${layer.tools.map(t => `
+              <div class="p-3 rounded-lg bg-slate-950 border border-slate-800 text-xs">
+                <strong class="text-slate-200 block mb-1">${t.category}</strong>
+                <div class="flex flex-wrap gap-1 mb-1.5">
+                  ${t.items.map(item => `<span class="text-[10px] font-mono text-cyan-300 bg-cyan-950/60 border border-cyan-800 px-1 py-0.2 rounded">${item}</span>`).join('')}
+                </div>
+                <p class="text-[11px] text-slate-400">${t.desc}</p>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function selectLayer(id) {
+      currentLayerId = id;
+      renderLayers();
+    }
+
+    function toggleLayerMode(mode) {
+      currentLayerMode = mode;
+      document.getElementById('btn-layer-tech').className = mode === 'tech' ? 'px-3 py-1.5 text-xs font-semibold rounded-md bg-cyan-500 text-slate-950' : 'px-3 py-1.5 text-xs font-semibold rounded-md text-slate-400 hover:text-white';
+      document.getElementById('btn-layer-analogy').className = mode === 'analogy' ? 'px-3 py-1.5 text-xs font-semibold rounded-md bg-cyan-500 text-slate-950' : 'px-3 py-1.5 text-xs font-semibold rounded-md text-slate-400 hover:text-white';
+      renderLayers();
+    }
+
+    // --- ORDER FLOW ANIMATION ---
+    function renderOrderStepper(activeStep = null) {
+      const stepper = document.getElementById('order-flow-stepper');
+      stepper.innerHTML = ORDER_STEPS.map(s => {
+        let bg = 'bg-slate-800';
+        if (activeStep !== null) {
+          if (activeStep === s.step) bg = 'bg-cyan-400 scale-y-125';
+          else if (activeStep > s.step) bg = 'bg-cyan-600';
+        }
+        return `<div class="h-2 rounded-full transition-all ${bg}" title="Step ${s.step}: ${s.name}"></div>`;
+      }).join('');
+    }
+
+    function playOrderFlow() {
+      let step = 1;
+      const detail = document.getElementById('order-flow-detail');
+      renderOrderStepper(step);
+      showStep(step);
+
+      const interval = setInterval(() => {
+        step++;
+        if (step <= ORDER_STEPS.length) {
+          renderOrderStepper(step);
+          showStep(step);
+        } else {
+          clearInterval(interval);
+        }
+      }, 2400);
+
+      function showStep(sNum) {
+        const s = ORDER_STEPS.find(item => item.step === sNum);
+        detail.innerHTML = `
+          <div class="flex items-center justify-between text-cyan-400 font-mono font-medium mb-1">
+            <span>Step ${s.step} of 6: ${s.name}</span>
+            <span class="text-[11px] text-slate-400">${s.layer}</span>
+          </div>
+          <p class="text-slate-100 font-medium text-xs mt-1">${s.action}</p>
+          <div class="mt-2 text-emerald-300 flex items-center gap-1.5 text-[11px]">
+            <i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-400 shrink-0"></i>
+            <span>${s.gate}</span>
+          </div>
+        `;
+        lucide.createIcons();
+      }
+    }
+
+    // --- ORGS & MULTI-CLOUD SUBVIEWS ---
+    function setEnvSubView(sub) {
+      currentEnvSub = sub;
+      const subs = ['environments', 'github', 'ide', 'multicloud', 'wiz'];
+      subs.forEach(s => {
+        const btn = document.getElementById('sub-env-' + s);
+        if (btn) {
+          btn.className = s === sub ? 'px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-cyan-500 text-slate-950 shadow-md' : 'px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white';
+        }
+      });
+
+      const container = document.getElementById('env-subview-content');
+      if (sub === 'environments') {
+        container.innerHTML = `
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
+              <span class="text-xs font-mono text-cyan-400 font-bold block mb-1">1. SANDBOX</span>
+              <h4 class="text-sm font-bold text-white">Flight Simulator</h4>
+              <p class="text-xs text-slate-400 mt-1">100% fake mock data. Free playground for interns. Auto-destroys every 14 days to save cloud cost.</p>
+              <div class="mt-3 text-[11px] text-slate-500 font-mono">VPC: Isolated, zero prod routing</div>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
+              <span class="text-xs font-mono text-blue-400 font-bold block mb-1">2. DEV (DEVELOPMENT)</span>
+              <h4 class="text-sm font-bold text-white">Kitchen Rehearsal</h4>
+              <p class="text-xs text-slate-400 mt-1">Pull Requests spin up ephemeral preview pods in K8s with seed fixtures so squads can test UI.</p>
+              <div class="mt-3 text-[11px] text-slate-500 font-mono">Access: WireGuard / Tailscale VPN</div>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
+              <span class="text-xs font-mono text-indigo-400 font-bold block mb-1">3. QA / STAGING</span>
+              <h4 class="text-sm font-bold text-white">Dress Rehearsal</h4>
+              <p class="text-xs text-slate-400 mt-1">1-to-1 production mirror. All PII scrambled. Automated DAST (OWASP ZAP) & load testing run here.</p>
+              <div class="mt-3 text-[11px] text-slate-500 font-mono">Auth: Cloudflare Access SSO</div>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-900 border border-cyan-500/50">
+              <span class="text-xs font-mono text-emerald-400 font-bold block mb-1">4. PROD (PRODUCTION)</span>
+              <h4 class="text-sm font-bold text-white">The Live Highway</h4>
+              <p class="text-xs text-slate-400 mt-1">Real customers, live payments. Zero human SSH terminal access! Canary progressive delivery (5% -> 100%).</p>
+              <div class="mt-3 text-[11px] text-emerald-400 font-mono">Defense: Falco eBPF + Wiz CSPM</div>
+            </div>
+          </div>
+        `;
+      } else if (sub === 'github') {
+        container.innerHTML = `
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-5 rounded-xl bg-slate-900 border border-slate-800">
+              <span class="text-xs font-mono text-cyan-400">@megacorp-sandbox (140 repos)</span>
+              <h4 class="text-base font-bold text-white mt-1">Innovation & Intern Sandbox Org</h4>
+              <p class="text-xs text-slate-300 mt-1">Intern labs and hackathon proofs of concept. Completely cut off from real customer databases.</p>
+            </div>
+            <div class="p-5 rounded-xl bg-slate-900 border border-slate-800">
+              <span class="text-xs font-mono text-blue-400">@megacorp-platform-core (85 repos)</span>
+              <h4 class="text-base font-bold text-white mt-1">Shared Infrastructure & Golden Images</h4>
+              <p class="text-xs text-slate-300 mt-1">Standardized base Dockerfiles, Terraform VPC modules, corporate auth SDKs. Requires 2 Staff Engineer reviews.</p>
+            </div>
+            <div class="p-5 rounded-xl bg-slate-900 border border-slate-800">
+              <span class="text-xs font-mono text-indigo-400">@megacorp-customer-apps (320 repos)</span>
+              <h4 class="text-base font-bold text-white mt-1">Client Websites & Mobile Repos</h4>
+              <p class="text-xs text-slate-300 mt-1">Squad microservices, React stores, iOS/Android apps. Mandatory Dependabot & SonarQube gates.</p>
+            </div>
+            <div class="p-5 rounded-xl bg-slate-900 border border-rose-900/60">
+              <span class="text-xs font-mono text-rose-400">@megacorp-fintech-ledger (45 repos)</span>
+              <h4 class="text-base font-bold text-white mt-1">Financial Services & High Compliance</h4>
+              <p class="text-xs text-slate-300 mt-1">Stripe payment routers, SAP connectors. Hardware YubiKey signed commits, PCI-DSS compliance.</p>
+            </div>
+          </div>
+        `;
+      } else if (sub === 'ide') {
+        container.innerHTML = `
+          <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+            <h3 class="text-lg font-bold text-white">Developer Workstations: VS Code & PyCharm</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">Before code ever touches GitHub or Cloud, local shift-left linters run on your personal laptop:</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div class="p-3 rounded-lg bg-slate-950 border border-slate-800">
+                <strong class="text-cyan-300 block mb-1">SonarLint Extension</strong>
+                <p class="text-slate-400">Underlines raw SQL queries and potential buffer overflows directly in your editor as you type.</p>
+              </div>
+              <div class="p-3 rounded-lg bg-slate-950 border border-slate-800">
+                <strong class="text-blue-300 block mb-1">Snyk IDE Extension</strong>
+                <p class="text-slate-400">Flags known CVEs right next to dependency version strings in package.json.</p>
+              </div>
+              <div class="p-3 rounded-lg bg-slate-950 border border-slate-800">
+                <strong class="text-emerald-300 block mb-1">GitLeaks Pre-Commit Hook</strong>
+                <p class="text-slate-400">Runs locally on `git commit` to block commits containing passwords before they leave the laptop.</p>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (sub === 'multicloud') {
+        container.innerHTML = `
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+            <div class="p-5 rounded-xl bg-slate-900 border border-slate-800">
+              <strong class="text-cyan-400 font-mono text-sm block mb-1">Amazon Web Services (AWS)</strong>
+              <p class="text-slate-300">Global compute & database workhorse. EKS Kubernetes, RDS Aurora, S3, KMS encryption.</p>
+            </div>
+            <div class="p-5 rounded-xl bg-slate-900 border border-slate-800">
+              <strong class="text-blue-400 font-mono text-sm block mb-1">Google Cloud (GCP)</strong>
+              <p class="text-slate-300">Big data analytics & AI engine. BigQuery data warehousing, Vertex AI models, GKE multi-region.</p>
+            </div>
+            <div class="p-5 rounded-xl bg-slate-900 border border-slate-800">
+              <strong class="text-emerald-400 font-mono text-sm block mb-1">Alibaba Cloud (AliCloud)</strong>
+              <p class="text-slate-300">Asia-Pacific & China mainland compliance. China's Cybersecurity Law mandates domestic citizen data stays in China.</p>
+            </div>
+          </div>
+        `;
+      } else if (sub === 'wiz') {
+        container.innerHTML = `
+          <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+              <div>
+                <span class="text-xs font-mono text-cyan-400 font-bold">AGENTLESS CLOUD SECURITY (CSPM / CNAPP)</span>
+                <h3 class="text-xl font-bold text-white mt-0.5">Wiz Cloud Security Graph</h3>
+              </div>
+              <span class="text-xs px-2.5 py-1 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">Agentless Advantage</span>
+            </div>
+            <div class="mt-4 p-4 rounded-xl bg-cyan-950/20 border border-cyan-800/40 text-xs text-slate-200 italic">
+              "Traditional scanners were like placing a security guard in every room of a 5,000-room hotel. Wiz is like a military satellite scanning from above, instantly spotting an open window with a ladder into the jewelry safe!"
+            </div>
+            <div class="mt-4 p-4 rounded-xl bg-rose-950/20 border border-rose-900/40 text-xs">
+              <strong class="text-rose-400 block mb-1">The "Toxic Combination" Concept:</strong>
+              <p class="text-rose-200/90 leading-relaxed">
+                Traditional scanners create 3 isolated alerts. Wiz links them: Public Port 80 + Unpatched Log4j + Attached AWS IAM Admin Role -> S3 Customer Data. It sounds the critical alarm before hackers find it!
+              </p>
+            </div>
+          </div>
+        `;
+      }
+      lucide.createIcons();
+    }
+
+    // --- PIPELINE SIMULATOR ---
+    function renderPipeline() {
+      // Scenarios
+      const scenContainer = document.getElementById('pipeline-scenarios-selector');
+      scenContainer.innerHTML = SCENARIOS.map(sc => {
+        const isSel = sc.id === selectedScenario.id;
+        return `
+          <button onclick="pickScenario('${sc.id}')" class="p-2.5 rounded-lg border text-left transition-all ${
+            isSel ? 'bg-slate-900 border-cyan-500 ring-1 ring-cyan-500/50' : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+          }">
+            <div class="text-[10px] font-mono text-cyan-400 font-semibold truncate">${sc.label}</div>
+            <div class="text-xs font-bold text-white truncate mt-0.5">${sc.title}</div>
+          </button>
+        `;
+      }).join('');
+
+      // Stages
+      const stagesContainer = document.getElementById('pipeline-stages-container');
+      stagesContainer.innerHTML = PIPELINE_STAGES.map(st => {
+        const status = pipelineStatuses[st.id] || 'idle';
+        let cardStyle = 'bg-slate-900/60 border-slate-800 text-slate-400';
+        let badgeIcon = '';
+        if (status === 'passed') {
+          cardStyle = 'bg-emerald-950/20 border-emerald-800/60 text-emerald-200';
+          badgeIcon = '<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>';
+        } else if (status === 'failed') {
+          cardStyle = 'bg-rose-950/30 border-rose-600 text-rose-200 ring-2 ring-rose-500/50';
+          badgeIcon = '<i data-lucide="x-circle" class="w-4 h-4 text-rose-400"></i>';
+        } else if (status === 'running') {
+          cardStyle = 'bg-cyan-950/30 border-cyan-500 text-cyan-100 animate-pulse';
+          badgeIcon = '<div class="w-3 h-3 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin"></div>';
+        }
+
+        return `
+          <div class="p-3.5 rounded-xl border flex flex-col justify-between transition-all ${cardStyle}">
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[10px] font-mono font-semibold">GATE 0${st.num}</span>
+                ${badgeIcon}
+              </div>
+              <h4 class="text-xs font-bold text-white leading-snug">${st.name}</h4>
+              <div class="text-[11px] font-mono text-cyan-400/90 mt-0.5 truncate">${st.tool}</div>
+            </div>
+            <div class="mt-3 pt-2 border-t border-slate-800/80 text-[10px] text-slate-400 line-clamp-2">${st.analogy}</div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    function pickScenario(scId) {
+      if (isPipelineRunning) return;
+      selectedScenario = SCENARIOS.find(s => s.id === scId) || SCENARIOS[0];
+      isScenarioFixed = false;
+      resetPipeline();
+    }
+
+    function resetPipeline() {
+      isPipelineRunning = false;
+      pipelineStatuses = {};
+      PIPELINE_STAGES.forEach(st => pipelineStatuses[st.id] = 'idle');
+      document.getElementById('pipeline-tripped-banner').classList.add('hidden');
+      document.getElementById('pipeline-success-banner').classList.add('hidden');
+      document.getElementById('pipeline-status-indicator').innerText = 'Status: Ready';
+      document.getElementById('terminal-logs-body').innerHTML = `
+        <div class="text-slate-400">[READY] DevSecOps Automated CI/CD Engine v2.4 initialized.</div>
+        <div class="text-slate-400">[INFO] Active Scenario: ${selectedScenario.title}. Hit "Trigger Pipeline Run" to begin.</div>
+      `;
+      renderPipeline();
+    }
+
+    function startPipelineRun() {
+      if (isPipelineRunning) return;
+      isPipelineRunning = true;
+      pipelineStatuses = {};
+      PIPELINE_STAGES.forEach(st => pipelineStatuses[st.id] = 'idle');
+      document.getElementById('pipeline-tripped-banner').classList.add('hidden');
+      document.getElementById('pipeline-success-banner').classList.add('hidden');
+      const term = document.getElementById('terminal-logs-body');
+      term.innerHTML = `
+        <div class="text-cyan-300 font-semibold">[TRIGGER] Automated Pipeline build initiated for feature/order-checkout</div>
+        <div class="text-slate-400">[SCENARIO] ${selectedScenario.title}${isScenarioFixed ? ' (PATCH APPLIED)' : ''}</div>
+      `;
+
+      let stageIdx = 0;
+      runNextStage();
+
+      function runNextStage() {
+        if (stageIdx >= PIPELINE_STAGES.length) {
+          isPipelineRunning = false;
+          confetti({ particleCount: 75, spread: 60 });
+          document.getElementById('pipeline-success-banner').innerHTML = `
+            <div class="flex items-center gap-3">
+              <div class="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400"><i data-lucide="sparkles" class="w-6 h-6"></i></div>
+              <div>
+                <div class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Production Release Verified</div>
+                <h3 class="text-lg font-bold text-white">All 7 Security Gates Passed · Zero Downtime Canary Achieved!</h3>
+              </div>
+            </div>
+            <button onclick="resetPipeline()" class="px-3.5 py-1.5 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg whitespace-nowrap">Test Another</button>
+          `;
+          document.getElementById('pipeline-success-banner').classList.remove('hidden');
+          document.getElementById('pipeline-status-indicator').innerText = 'Status: Deployed to 100% Production';
+          term.innerHTML += `<div class="text-emerald-400 font-bold">[SUCCESS] All 7 automated security gates passed! Zero downtime canary promoted.</div>`;
+          term.scrollTop = term.scrollHeight;
+          lucide.createIcons();
+          return;
+        }
+
+        const stage = PIPELINE_STAGES[stageIdx];
+        pipelineStatuses[stage.id] = 'running';
+        document.getElementById('pipeline-status-indicator').innerText = `Running Gate ${stage.num} of 7: ${stage.name}...`;
+        renderPipeline();
+        term.innerHTML += `<div class="text-cyan-300">>>> Entering Stage ${stage.num}: ${stage.name} (${stage.tool})...</div>`;
+        term.scrollTop = term.scrollHeight;
+
+        const shouldFail = !isScenarioFixed && selectedScenario.failsAt === stage.id;
+
+        setTimeout(() => {
+          if (shouldFail) {
+            pipelineStatuses[stage.id] = 'failed';
+            isPipelineRunning = false;
+            renderPipeline();
+            document.getElementById('pipeline-status-indicator').innerText = `BLOCKED at Gate ${stage.num}`;
+            term.innerHTML += `
+              <div class="text-rose-400 font-bold bg-rose-950/20 py-0.5 px-1">[CRITICAL-ALERT] Vulnerability detected! Security Gate Tripped.</div>
+              <div class="text-rose-400">[FATAL] Production build halted at Stage ${stage.num}.</div>
+            `;
+            term.scrollTop = term.scrollHeight;
+
+            const banner = document.getElementById('pipeline-tripped-banner');
+            banner.innerHTML = `
+              <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-rose-900/50">
+                <div>
+                  <div class="flex items-center gap-1.5 text-rose-400 text-xs font-bold uppercase tracking-wider mb-1">
+                    <i data-lucide="alert-triangle" class="w-4 h-4"></i> Security Gate Tripped: ${selectedScenario.title}
+                  </div>
+                  <h3 class="text-base font-bold text-white">Production Release Blocked by Automated Guardrail</h3>
+                  <p class="text-xs text-rose-200 mt-1">The automated CI/CD pipeline halted the build before dangerous code could reach any customer.</p>
+                </div>
+                <button onclick="applySecurityPatch()" class="px-4 py-2 text-xs font-bold rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-1.5 whitespace-nowrap">
+                  <i data-lucide="wrench" class="w-3.5 h-3.5"></i> Apply Security Patch & Re-test
+                </button>
+              </div>
+            `;
+            banner.classList.remove('hidden');
+            lucide.createIcons();
+          } else {
+            pipelineStatuses[stage.id] = 'passed';
+            renderPipeline();
+            term.innerHTML += `<div class="text-slate-400">[PASSED] Gate ${stage.num} check verified with zero critical findings.</div>`;
+            term.scrollTop = term.scrollHeight;
+            stageIdx++;
+            setTimeout(runNextStage, 600);
+          }
+        }, 900);
+      }
+    }
+
+    function applySecurityPatch() {
+      isScenarioFixed = true;
+      document.getElementById('pipeline-tripped-banner').classList.add('hidden');
+      const term = document.getElementById('terminal-logs-body');
+      term.innerHTML += `<div class="text-emerald-400 font-semibold">[PATCH] Enterprise best practice applied. Click "Trigger Pipeline Run" to verify!</div>`;
+      startPipelineRun();
+    }
+
+    // --- HANDBOOK ---
+    function renderHandbook() {
+      const list = document.getElementById('handbook-chapters-list');
+      list.innerHTML = HANDBOOK_CHAPTERS.map(ch => {
+        const isSel = ch.id === selectedChapterId;
+        const isComp = completedChapters.includes(ch.id);
+        return `
+          <div onclick="selectHandbookChapter('${ch.id}')" class="p-3.5 rounded-xl border transition-all cursor-pointer ${
+            isSel ? 'bg-slate-900 border-cyan-500' : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+          }">
+            <div class="flex items-center justify-between text-[10px] font-mono font-semibold text-cyan-400">
+              <span>CHAPTER 0${ch.num}</span>
+              <span class="text-slate-500">${ch.time}</span>
+            </div>
+            <h4 class="text-xs font-bold text-white mt-1 leading-snug">${ch.title}</h4>
+            <p class="text-[11px] text-slate-400 line-clamp-1 mt-0.5">${ch.sub}</p>
+          </div>
+        `;
+      }).join('');
+
+      const ch = HANDBOOK_CHAPTERS.find(item => item.id === selectedChapterId) || HANDBOOK_CHAPTERS[0];
+      const isComp = completedChapters.includes(ch.id);
+      const reader = document.getElementById('handbook-reader-content');
+      reader.innerHTML = `
+        <div class="pb-4 border-b border-slate-800 flex items-center justify-between">
+          <span class="text-xs font-mono font-bold text-cyan-400 uppercase">Chapter 0${ch.num} of 9</span>
+          <button onclick="toggleChapterRead('${ch.id}')" class="px-3 py-1 rounded text-xs font-semibold ${isComp ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-slate-800 text-slate-300'}">
+            ${isComp ? '✓ Read' : 'Mark as Read'}
+          </button>
+        </div>
+        <h1 class="text-2xl font-extrabold text-white mt-4 tracking-tight">${ch.title}</h1>
+        <p class="text-sm text-cyan-300 mt-1">${ch.sub}</p>
+        <div class="mt-6 space-y-4 text-xs sm:text-sm text-slate-300 leading-relaxed">
+          <p>This chapter provides the complete 1st-year engineering breakdown with real-world analogies (The Grand Hotel, Spotify Two-Pizza squads, Formula 1 brakes, and Canary coal-mine birds).</p>
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs">
+            <strong class="text-cyan-400 block mb-1">Key Engineering Principle:</strong>
+            Shift-Left security moves safety checks from the end of the year to the moment code is typed into your IDE. Fixing a bug locally costs $10; fixing after an AWS data breach costs $10,000,000.
+          </div>
+        </div>
+        <div class="mt-8 pt-4 border-t border-slate-800 flex justify-between">
+          <button onclick="navChapter(-1)" class="px-3 py-1.5 text-xs bg-slate-800 rounded text-slate-300">Previous</button>
+          <button onclick="navChapter(1)" class="px-3 py-1.5 text-xs bg-cyan-400 font-bold rounded text-slate-950">Next Chapter</button>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function selectHandbookChapter(id) {
+      selectedChapterId = id;
+      renderHandbook();
+    }
+
+    function toggleChapterRead(id) {
+      if (completedChapters.includes(id)) {
+        completedChapters = completedChapters.filter(c => c !== id);
+      } else {
+        completedChapters.push(id);
+      }
+      document.getElementById('badge-progress-count').innerText = `${completedChapters.length}/9`;
+      document.getElementById('cert-chapters-read').innerText = `${completedChapters.length}/9`;
+      renderHandbook();
+    }
+
+    function navChapter(delta) {
+      const idx = HANDBOOK_CHAPTERS.findIndex(c => c.id === selectedChapterId);
+      const nextIdx = idx + delta;
+      if (nextIdx >= 0 && nextIdx < HANDBOOK_CHAPTERS.length) {
+        selectedChapterId = HANDBOOK_CHAPTERS[nextIdx].id;
+        renderHandbook();
+      }
+    }
+
+    function filterHandbook(query) {
+      const q = query.toLowerCase();
+      const list = document.getElementById('handbook-chapters-list');
+      const filtered = HANDBOOK_CHAPTERS.filter(c => c.title.toLowerCase().includes(q) || c.sub.toLowerCase().includes(q));
+      list.innerHTML = filtered.map(ch => `
+        <div onclick="selectHandbookChapter('${ch.id}')" class="p-3.5 rounded-xl border bg-slate-950/60 border-slate-800 hover:border-slate-700 cursor-pointer">
+          <div class="text-[10px] font-mono text-cyan-400 font-semibold">CHAPTER 0${ch.num}</div>
+          <h4 class="text-xs font-bold text-white mt-1">${ch.title}</h4>
+        </div>
+      `).join('');
+    }
+
+    // --- QUIZ ARENA ---
+    function renderQuiz() {
+      const q = QUIZ_QUESTIONS[activeQuizIndex];
+      const hasAnswered = !!answeredQuizzes[q.id];
+      const container = document.getElementById('quiz-container');
+      container.innerHTML = `
+        <div class="p-6 sm:p-8 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl">
+          <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+            <span class="text-xs font-mono font-semibold text-cyan-400">INCIDENT 0${activeQuizIndex + 1} OF ${QUIZ_QUESTIONS.length}</span>
+            <span class="text-[11px] font-mono px-2 py-0.5 rounded border border-cyan-800 bg-cyan-950 text-cyan-300">${q.diff}</span>
+          </div>
+          <h3 class="mt-4 text-base sm:text-lg font-bold text-white">${q.q}</h3>
+          <div class="mt-5 space-y-2.5">
+            ${q.options.map((opt, oIdx) => {
+              const isChosen = answeredQuizzes[q.id]?.chosenIdx === oIdx;
+              let style = 'bg-slate-950 border-slate-800 hover:border-slate-700';
+              if (hasAnswered) {
+                if (opt.correct) style = 'bg-emerald-950/40 border-emerald-600 text-emerald-200';
+                else if (isChosen) style = 'bg-rose-950/40 border-rose-600 text-rose-200';
+                else style = 'bg-slate-950/40 border-slate-900 opacity-50';
+              }
+              return `
+                <div onclick="answerQuiz(${oIdx})" class="p-3.5 rounded-xl border text-xs cursor-pointer transition-all ${style}">
+                  <div class="font-medium">${opt.text}</div>
+                  ${hasAnswered && opt.correct ? `<div class="mt-2 text-emerald-400 font-mono text-[11px]">${opt.exp}</div>` : ''}
+                </div>
+              `;
+            }).join('')}
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-800 flex justify-between">
+            <button onclick="stepQuiz(-1)" ${activeQuizIndex === 0 ? 'disabled class="opacity-30"' : 'class="px-3 py-1.5 text-xs bg-slate-800 text-slate-300 rounded"'}>Previous</button>
+            <button onclick="stepQuiz(1)" ${activeQuizIndex === QUIZ_QUESTIONS.length - 1 ? 'disabled class="opacity-30"' : 'class="px-4 py-1.5 text-xs bg-cyan-400 text-slate-950 font-bold rounded"'}>Next Incident</button>
+          </div>
+        </div>
+      `;
+      document.getElementById('quiz-score-display').innerText = `${quizScore}/${QUIZ_QUESTIONS.length}`;
+      lucide.createIcons();
+    }
+
+    function answerQuiz(optIdx) {
+      const q = QUIZ_QUESTIONS[activeQuizIndex];
+      if (answeredQuizzes[q.id]) return;
+      const isCorrect = q.options[optIdx].correct;
+      if (isCorrect) quizScore++;
+      answeredQuizzes[q.id] = { chosenIdx: optIdx, isCorrect };
+      renderQuiz();
+    }
+
+    function stepQuiz(delta) {
+      const next = activeQuizIndex + delta;
+      if (next >= 0 && next < QUIZ_QUESTIONS.length) {
+        activeQuizIndex = next;
+        renderQuiz();
+      }
+    }
+
+    function resetQuiz() {
+      activeQuizIndex = 0;
+      quizScore = 0;
+      answeredQuizzes = {};
+      renderQuiz();
+    }
+
+    // --- MENTOR Q&A ---
+    function renderMentor() {
+      const list = document.getElementById('mentor-presets-list');
+      list.innerHTML = MENTOR_PRESETS.map((m, idx) => `
+        <div onclick="showMentorAnswer(${idx})" class="p-3.5 rounded-xl border bg-slate-950/60 border-slate-800 hover:border-slate-700 cursor-pointer">
+          <span class="text-[10px] font-mono text-cyan-400 block mb-0.5">${m.cat}</span>
+          <h4 class="text-xs font-bold text-white">${m.q}</h4>
+        </div>
+      `).join('');
+      showMentorAnswer(0);
+    }
+
+    function showMentorAnswer(idx) {
+      const m = MENTOR_PRESETS[idx];
+      const card = document.getElementById('mentor-answer-card');
+      card.innerHTML = `
+        <span class="text-xs font-mono text-cyan-400 font-semibold">${m.cat}</span>
+        <h3 class="text-xl font-bold text-white mt-1">${m.q}</h3>
+        <div class="mt-5 p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs">
+          <span class="text-slate-500 uppercase font-mono block mb-1">10-Second Summary</span>
+          <p class="text-cyan-300 font-semibold">"${m.a}"</p>
+        </div>
+        <div class="mt-4 p-4 rounded-xl bg-cyan-950/20 border border-cyan-800/40 text-xs">
+          <strong class="text-cyan-400 block mb-1">The Relatable Analogy:</strong>
+          <p class="text-slate-200 italic leading-relaxed">"${m.analogy}"</p>
+        </div>
+        <div class="mt-4 p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs">
+          <strong class="text-slate-300 block mb-1">How Big Tech Implements This in Real Life:</strong>
+          <p class="text-slate-400 leading-relaxed">${m.tech}</p>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function handleCustomMentorQuestion(e) {
+      e.preventDefault();
+      const input = document.getElementById('custom-question-input');
+      const val = input.value.trim();
+      if (!val) return;
+      const card = document.getElementById('mentor-answer-card');
+      card.innerHTML = `
+        <span class="text-xs font-mono text-cyan-400 font-semibold">Senior Tech Lead Response</span>
+        <h3 class="text-xl font-bold text-white mt-1">${val}</h3>
+        <div class="mt-5 p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs">
+          <p class="text-cyan-300 font-semibold">"In enterprise software, automated guardrails always beat human memory."</p>
+        </div>
+        <div class="mt-4 p-4 rounded-xl bg-cyan-950/20 border border-cyan-800/40 text-xs text-slate-200 italic leading-relaxed">
+          "Think of modern cloud architecture like a commercial airliner. Pilots do not flip 500 mechanical switches manually. Automated flight computers monitor airspeed and altitude 100 times a second to ensure safe transit."
+        </div>
+      `;
+      input.value = '';
+      lucide.createIcons();
+    }
+
+    // --- CERTIFICATE MODAL ---
+    function openCertificate() {
+      document.getElementById('certificate-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+    function closeCertificate() {
+      document.getElementById('certificate-modal').classList.add('hidden');
+    }
+
+    // --- DOWNLOAD SELF ---
+    function downloadSelf() {
+      const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'index.html'; // Ready for GitHub Pages!
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // --- INIT ---
+    window.addEventListener('DOMContentLoaded', () => {
+      renderLayers();
+      renderOrderStepper();
+      renderPipeline();
+      renderHandbook();
+      renderQuiz();
+      renderMentor();
+      setEnvSubView('environments');
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "name": "DevSecOps Enterprise Academy",
+  "description": "An interactive training platform and automated deployment pipeline simulator for engineering students to master enterprise technology layers and modern DevSecOps.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
